@@ -391,6 +391,11 @@ void keypressed(char key) {
 // Update
 void update() {
   switch ( state ) {
+    case STATE_START:
+    case STATE_END:
+      rand();
+      break;
+
     case STATE_RUN:
       update_snake_head();
       update_snake_tail();
