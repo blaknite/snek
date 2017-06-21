@@ -8,6 +8,8 @@
 #pragma output CLIB_OPT_PRINTF = 0x1;
 
 #define SLEEP_CYCLES 2500
+#define SCORE_PER_APPLE 10
+#define CYCLES_PER_APPLE 2
 #define COLOR_BG 40
 #define COLOR_TEXT 37
 #define COLOR_WALL 44
@@ -23,7 +25,6 @@
 #define DIR_DOWN 'D'
 #define DIR_LEFT 'L'
 #define DIR_RIGHT 'R'
-#define SCORE_PER_APPLE 10
 #define STATE_START 0
 #define STATE_RUN 1
 #define STATE_PAUSE 2
@@ -48,7 +49,8 @@ unsigned char grid[GRID_WIDTH * GRID_HEIGHT];
 
 unsigned int state = STATE_START;
 
-unsigned int score;
+unsigned int score = 0;
+unsigned int sleep_cycles = SLEEP_CYCLES;
 
 unsigned int grid_index(unsigned int x, unsigned int y) {
   return y * GRID_WIDTH + x;
@@ -200,6 +202,7 @@ void update_score() {
   if ( apple.x != snake_head.x || apple.y != snake_head.y ) return;
   new_apple();
   score += SCORE_PER_APPLE;
+  sleep_cycles -= CYCLES_PER_APPLE;
 }
 
 void draw_start() {
@@ -318,6 +321,7 @@ void draw_end() {
 
 void start() {
   score = 0;
+  sleep_cycles = SLEEP_CYCLES;
 
   state = STATE_RUN;
 
@@ -335,7 +339,7 @@ void start() {
 }
 
 void input() {
-  unsigned int i = SLEEP_CYCLES - score / SCORE_PER_APPLE;
+  unsigned int i = sleep_cycles;
   unsigned char key;
 
   while ( i-- ) {
