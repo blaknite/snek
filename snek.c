@@ -5,6 +5,7 @@
 
 #pragma output REGISTER_SP = -1
 #pragma output CLIB_MALLOC_HEAP_SIZE = 0
+#pragma output CLIB_OPT_PRINTF = 0x1;
 
 #define SLEEP_DURATION 7500
 #define COLOR_BG 40
@@ -330,14 +331,13 @@ void draw_pause() {
 }
 
 void draw_end() {
-  unsigned char str[5];
+  unsigned char str[20];
 
   rc2014_ansi_color(COLOR_END);
   rc2014_ansi_move_cursor(GRID_HEIGHT / 2 - 2, GRID_WIDTH - 5);
   rc2014_print("GAME OVER!");
   rc2014_ansi_move_cursor(GRID_HEIGHT / 2, GRID_WIDTH - 8);
-  rc2014_print("FINAL SCORE: ");
-  sprintf(str, "%d", score);
+  sprintf(str, "FINAL SCORE: %d", score);
   rc2014_print(str);
   rc2014_ansi_move_cursor(GRID_HEIGHT / 2 + 2, GRID_WIDTH - 14);
   rc2014_print("--| PRESS SPACE TO START |--");
