@@ -29,51 +29,53 @@
 #define STATE_END 3
 
 typedef struct {
-  int x;
-  int y;
+  unsigned int x;
+  unsigned int y;
 } cell;
 
 typedef struct {
-  int x;
-  int y;
-  char direction;
+  unsigned int x;
+  unsigned int y;
+  unsigned char direction;
 } snake_cell;
 
-snake_cell snake_head;
-snake_cell snake_tail;
-cell apple;
+static snake_cell snake_head;
+static snake_cell snake_tail;
+static cell apple;
 
-char grid[GRID_WIDTH * GRID_HEIGHT];
+static unsigned char grid[GRID_WIDTH * GRID_HEIGHT];
 
-int state;
+static unsigned int state;
 
-int score;
+static unsigned int score;
 
-int grid_index(int x, int y) {
+unsigned int grid_index(unsigned int x, unsigned int y) {
   return y * GRID_WIDTH + x;
 }
 
-char get_cell(int x, int y) {
+unsigned char get_cell(unsigned int x, unsigned int y) {
   return grid[grid_index(x, y)];
 }
 
-void set_cell(int x, int y, char val) {
+void set_cell(unsigned int x, unsigned int y, unsigned char val) {
   grid[grid_index(x, y)] = val;
 }
 
-void draw_cell(int x, int y, int col) {
+void draw_cell(unsigned int x, unsigned int y, unsigned int col) {
   rc2014_ansi_move_cursor(y + 1, 2 * x + 1);
   rc2014_ansi_color(col);
   rc2014_print("  ");
 }
 
 void init_grid() {
-  int x;
-  int y;
+  static unsigned int x;
+  static unsigned int y;
+  static unsigned int max_x = GRID_WIDTH - 1;
+  static unsigned int max_y = GRID_HEIGHT - 1;
 
   for ( y = 0; y < GRID_HEIGHT; ++y ) {
     for ( x = 0; x < GRID_WIDTH; ++x ) {
-      if ( y == 0 || y == GRID_HEIGHT - 1 || x == 0 || x == GRID_WIDTH - 1 ) {
+      if ( y == 0 || y == max_y || x == 0 || x == max_x ) {
         set_cell(x, y, GRID_WALL);
       } else {
         set_cell(x, y, GRID_EMPTY);
@@ -126,8 +128,8 @@ void set_direction(char key) {
 }
 
 void new_apple() {
-  int x = 0;
-  int y = 0;
+  static unsigned int x = 0;
+  static unsigned int y = 0;
 
   while ( get_cell(x, y) != GRID_EMPTY ) {
     x = rand() % GRID_WIDTH;
@@ -146,7 +148,7 @@ void end() {
 }
 
 void update_snake_head() {
-  char val;
+  static unsigned char val;
 
   set_cell(snake_head.x, snake_head.y, snake_head.direction);
 
@@ -176,10 +178,13 @@ void update_snake_head() {
 }
 
 void update_snake_tail() {
-  int x = snake_tail.x;
-  int y = snake_tail.y;
+  static unsigned int x;
+  static unsigned int y;
 
   if ( apple.x == snake_head.x && apple.y == snake_head.y ) return;
+
+  x = snake_tail.x;
+  y = snake_tail.y;
 
   switch ( get_cell(x, y) ) {
     case DIR_UP:
@@ -206,7 +211,9 @@ void update_snake_tail() {
 
 void update_score() {
   if ( apple.x != snake_head.x || apple.y != snake_head.y ) return;
+
   new_apple();
+
   score += SCORE_PER_APPLE;
 }
 
@@ -237,10 +244,10 @@ void draw_start() {
 }
 
 void draw_grid() {
-  int x;
-  int y;
-  char val;
-  char col;
+  static unsigned int x;
+  static unsigned int y;
+  static unsigned char val;
+  static unsigned int col;
 
   rc2014_ansi_color(COLOR_BG);
   rc2014_ansi_cls();
@@ -280,8 +287,11 @@ void draw_snake_head() {
 }
 
 void draw_snake_tail() {
-  int x = snake_tail.x;
-  int y = snake_tail.y;
+  static unsigned int x;
+  static unsigned int y;
+
+  x = snake_tail.x;
+  y = snake_tail.y;
 
   switch ( snake_tail.direction ) {
     case DIR_UP:
@@ -309,7 +319,8 @@ void draw_apple() {
 }
 
 void draw_score() {
-  char str[14];
+  static unsigned char str[14];
+
   sprintf(str, "SCORE: %d", score);
   rc2014_ansi_move_cursor(GRID_HEIGHT + 1, 1);
   rc2014_ansi_color(COLOR_BG);
@@ -325,7 +336,7 @@ void draw_pause() {
 }
 
 void draw_end() {
-  char str[5];
+  static unsigned char str[5];
 
   rc2014_ansi_color(COLOR_END);
   rc2014_ansi_move_cursor(GRID_HEIGHT / 2 - 2, GRID_WIDTH - 5);
@@ -339,7 +350,10 @@ void draw_end() {
 }
 
 void sleep() {
-  int i = SLEEP_DURATION - score;
+  static unsigned int i;
+
+  i = SLEEP_DURATION - score;
+
   while ( i > 0 ) i--;
 }
 
@@ -370,6 +384,7 @@ void start() {
 void keypressed(char key) {
   switch ( state ) {
     case STATE_START:
+    case STATE_END:
       if ( key == ' ' ) start();
       break;
 
@@ -380,10 +395,6 @@ void keypressed(char key) {
 
     case STATE_PAUSE:
       if ( key == 'p' ) state = STATE_RUN;
-      break;
-
-    case STATE_END:
-      if ( key == ' ' ) start();
       break;
   }
 }
@@ -430,11 +441,12 @@ void draw() {
 
 // Main game loop
 void main() {
-  char key;
+  static unsigned char key;
 
   rc2014_ansi_hide_cursor();
   rc2014_ansi_color(COLOR_BG);
   rc2014_ansi_cls();
+
   state = STATE_START;
 
   while ( 1 ) {
