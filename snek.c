@@ -7,7 +7,7 @@
 #pragma output CLIB_MALLOC_HEAP_SIZE = 0
 #pragma output CLIB_OPT_PRINTF = 0x1;
 
-#define SLEEP_CYCLES 7500
+#define SLEEP_CYCLES 2500
 #define COLOR_BG 40
 #define COLOR_TEXT 37
 #define COLOR_WALL 44
@@ -319,12 +319,6 @@ void draw_end() {
   rc2014_print("--| PRESS SPACE TO START |--");
 }
 
-void sleep() {
-  unsigned int i = SLEEP_CYCLES - score;
-
-  while ( i-- );
-}
-
 void start() {
   score = 0;
 
@@ -343,26 +337,33 @@ void start() {
   draw_score();
 }
 
-// Input
-void keypressed(char key) {
-  switch ( state ) {
-    case STATE_START:
-    case STATE_END:
-      if ( key == ' ' ) start();
-      break;
+void input() {
+  unsigned int i = SLEEP_CYCLES - score / SCORE_PER_APPLE;
+  unsigned char key;
 
-    case STATE_RUN:
-      set_direction(key);
-      if ( key == 'p' ) state = STATE_PAUSE;
-      break;
+  while ( i-- ) {
+    if ( !rc2014_uart_rx_ready() ) continue;
 
-    case STATE_PAUSE:
-      if ( key == 'p' ) state = STATE_RUN;
-      break;
+    key = rc2014_uart_rx();
+
+    switch ( state ) {
+      case STATE_START:
+      case STATE_END:
+        if ( key == ' ' ) start();
+        break;
+
+      case STATE_RUN:
+        set_direction(key);
+        if ( key == 'p' ) state = STATE_PAUSE;
+        break;
+
+      case STATE_PAUSE:
+        if ( key == 'p' ) state = STATE_RUN;
+        break;
+    }
   }
 }
 
-// Update
 void update() {
   switch ( state ) {
     case STATE_START:
@@ -378,7 +379,6 @@ void update() {
   }
 }
 
-// Draw
 void draw() {
   switch ( state ) {
     case STATE_START:
@@ -409,11 +409,8 @@ void main() {
   rc2014_ansi_cls();
 
   while ( 1 ) {
-    if ( rc2014_uart_rx_ready() ) {
-      keypressed(rc2014_uart_rx());
-    }
+    input();
     update();
     draw();
-    sleep();
   }
 }
