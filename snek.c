@@ -39,15 +39,15 @@ typedef struct {
   unsigned char direction;
 } snake_cell;
 
-static snake_cell snake_head;
-static snake_cell snake_tail;
-static cell apple;
+snake_cell snake_head;
+snake_cell snake_tail;
+cell apple;
 
-static unsigned char grid[GRID_WIDTH * GRID_HEIGHT];
+unsigned char grid[GRID_WIDTH * GRID_HEIGHT];
 
-static unsigned int state;
+unsigned int state;
 
-static unsigned int score;
+unsigned int score;
 
 unsigned int grid_index(unsigned int x, unsigned int y) {
   return y * GRID_WIDTH + x;
@@ -68,10 +68,10 @@ void draw_cell(unsigned int x, unsigned int y, unsigned int col) {
 }
 
 void init_grid() {
-  static unsigned int x;
-  static unsigned int y;
-  static unsigned int max_x = GRID_WIDTH - 1;
-  static unsigned int max_y = GRID_HEIGHT - 1;
+  unsigned int x;
+  unsigned int y;
+  unsigned int max_x = GRID_WIDTH - 1;
+  unsigned int max_y = GRID_HEIGHT - 1;
 
   for ( y = 0; y < GRID_HEIGHT; ++y ) {
     for ( x = 0; x < GRID_WIDTH; ++x ) {
@@ -128,8 +128,8 @@ void set_direction(char key) {
 }
 
 void new_apple() {
-  static unsigned int x = 0;
-  static unsigned int y = 0;
+  unsigned int x = 0;
+  unsigned int y = 0;
 
   while ( get_cell(x, y) != GRID_EMPTY ) {
     x = rand() % GRID_WIDTH;
@@ -148,7 +148,7 @@ void end() {
 }
 
 void update_snake_head() {
-  static unsigned char val;
+  unsigned char val;
 
   set_cell(snake_head.x, snake_head.y, snake_head.direction);
 
@@ -178,13 +178,10 @@ void update_snake_head() {
 }
 
 void update_snake_tail() {
-  static unsigned int x;
-  static unsigned int y;
+  unsigned int x = snake_tail.x;
+  unsigned int y = snake_tail.y;
 
   if ( apple.x == snake_head.x && apple.y == snake_head.y ) return;
-
-  x = snake_tail.x;
-  y = snake_tail.y;
 
   switch ( get_cell(x, y) ) {
     case DIR_UP:
@@ -244,10 +241,10 @@ void draw_start() {
 }
 
 void draw_grid() {
-  static unsigned int x;
-  static unsigned int y;
-  static unsigned char val;
-  static unsigned int col;
+  unsigned int x;
+  unsigned int y;
+  unsigned char val;
+  unsigned int col;
 
   rc2014_ansi_color(COLOR_BG);
   rc2014_ansi_cls();
@@ -287,11 +284,8 @@ void draw_snake_head() {
 }
 
 void draw_snake_tail() {
-  static unsigned int x;
-  static unsigned int y;
-
-  x = snake_tail.x;
-  y = snake_tail.y;
+  unsigned int x = snake_tail.x;
+  unsigned int y = snake_tail.y;
 
   switch ( snake_tail.direction ) {
     case DIR_UP:
@@ -319,7 +313,7 @@ void draw_apple() {
 }
 
 void draw_score() {
-  static unsigned char str[14];
+  unsigned char str[14];
 
   sprintf(str, "SCORE: %d", score);
   rc2014_ansi_move_cursor(GRID_HEIGHT + 1, 1);
@@ -336,7 +330,7 @@ void draw_pause() {
 }
 
 void draw_end() {
-  static unsigned char str[5];
+  unsigned char str[5];
 
   rc2014_ansi_color(COLOR_END);
   rc2014_ansi_move_cursor(GRID_HEIGHT / 2 - 2, GRID_WIDTH - 5);
@@ -350,7 +344,7 @@ void draw_end() {
 }
 
 void sleep() {
-  static unsigned int i;
+  unsigned int i;
 
   i = SLEEP_DURATION - score;
 
@@ -441,7 +435,7 @@ void draw() {
 
 // Main game loop
 void main() {
-  static unsigned char key;
+  unsigned char key;
 
   rc2014_ansi_hide_cursor();
   rc2014_ansi_color(COLOR_BG);
