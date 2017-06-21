@@ -338,8 +338,9 @@ void draw_end() {
   rc2014_print("--| PRESS SPACE TO START |--");
 }
 
-void sleep(int i) {
-  while ( --i );
+void sleep() {
+  int i = SLEEP_DURATION - score;
+  while ( i > 0 ) i--;
 }
 
 void start() {
@@ -438,6 +439,6 @@ void main() {
     }
     update();
     draw();
-    sleep(SLEEP_DURATION);
+    sleep();
   }
 }
