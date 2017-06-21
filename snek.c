@@ -171,12 +171,13 @@ void update_snake_head() {
 }
 
 void update_snake_tail() {
-  unsigned int x = snake_tail.x;
-  unsigned int y = snake_tail.y;
-
   if ( apple.x == snake_head.x && apple.y == snake_head.y ) return;
 
-  switch ( get_cell(x, y) ) {
+  snake_tail.direction = get_cell(snake_tail.x, snake_tail.y);
+
+  set_cell(snake_tail.x, snake_tail.y, GRID_EMPTY);
+
+  switch ( snake_tail.direction ) {
     case DIR_UP:
       snake_tail.y--;
       break;
@@ -193,10 +194,6 @@ void update_snake_tail() {
       snake_tail.x++;
       break;
   }
-
-  snake_tail.direction = get_cell(x, y);
-
-  set_cell(x, y, GRID_EMPTY);
 }
 
 void update_score() {
