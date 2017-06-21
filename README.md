@@ -8,7 +8,7 @@ Snake for the RC2014.
 
 ## The Easy Way
 
-Send snek.bas to your RC2014 over serial, it'll run and then launch into the game.
+Send snek.bas to your RC2014 over serial; it'll run and then launch into the game. This expects you are running the supplied BASIC ROM and uses its I/O subroutines.
 
 ## The Hard Way
 
