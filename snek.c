@@ -7,7 +7,7 @@
 #pragma output CLIB_MALLOC_HEAP_SIZE = 0
 #pragma output CLIB_OPT_PRINTF = 0x1;
 
-#define SLEEP_DURATION 7500
+#define SLEEP_CYCLES 7500
 #define COLOR_BG 40
 #define COLOR_TEXT 37
 #define COLOR_WALL 44
@@ -46,7 +46,7 @@ cell apple;
 
 unsigned char grid[GRID_WIDTH * GRID_HEIGHT];
 
-unsigned int state;
+unsigned int state = STATE_START;
 
 unsigned int score;
 
@@ -100,8 +100,8 @@ void init_snake() {
 }
 
 void init_apple() {
-  apple.x = 1;
-  apple.y = 1;
+  apple.x = 0;
+  apple.y = 0;
 }
 
 void set_direction(char key) {
@@ -129,17 +129,11 @@ void set_direction(char key) {
 }
 
 void new_apple() {
-  unsigned int x = 0;
-  unsigned int y = 0;
-
-  while ( get_cell(x, y) != GRID_EMPTY ) {
-    x = rand() % GRID_WIDTH;
-    y = rand() % GRID_HEIGHT;
+  while ( get_cell(apple.x, apple.y) != GRID_EMPTY ) {
+    apple.x = rand() % GRID_WIDTH;
+    apple.y = rand() % GRID_HEIGHT;
   }
 
-  set_cell(apple.x, apple.y, GRID_EMPTY);
-  apple.x = x;
-  apple.y = y;
   set_cell(apple.x, apple.y, GRID_APPLE);
 }
 
@@ -173,9 +167,7 @@ void update_snake_head() {
 
   val = get_cell(snake_head.x, snake_head.y);
 
-  if ( val == GRID_EMPTY || val == GRID_APPLE ) return;
-
-  end();
+  if ( val != GRID_APPLE && val != GRID_EMPTY ) end();
 }
 
 void update_snake_tail() {
@@ -209,9 +201,7 @@ void update_snake_tail() {
 
 void update_score() {
   if ( apple.x != snake_head.x || apple.y != snake_head.y ) return;
-
   new_apple();
-
   score += SCORE_PER_APPLE;
 }
 
@@ -244,38 +234,28 @@ void draw_start() {
 void draw_grid() {
   unsigned int x;
   unsigned int y;
-  unsigned char val;
-  unsigned int col;
 
   rc2014_ansi_color(COLOR_BG);
   rc2014_ansi_cls();
 
   for ( y = 0; y < GRID_HEIGHT; ++y ) {
     for ( x = 0; x < GRID_WIDTH; ++x ) {
-      val = get_cell(x, y);
-
-      switch ( val ) {
+      switch ( get_cell(x, y) ) {
         case GRID_WALL:
-          col = COLOR_WALL;
+          draw_cell(x, y, COLOR_WALL);
           break;
 
         case GRID_APPLE:
-          col = COLOR_APPLE;
+          draw_cell(x, y, COLOR_APPLE);
           break;
 
         case DIR_UP:
         case DIR_DOWN:
         case DIR_LEFT:
         case DIR_RIGHT:
-          col = COLOR_SNAKE;
-          break;
-
-        default:
-          col = COLOR_BG;
+          draw_cell(x, y, COLOR_SNAKE);
           break;
       }
-
-      if ( col != COLOR_BG ) draw_cell(x, y, col);
     }
   }
 }
@@ -289,21 +269,10 @@ void draw_snake_tail() {
   unsigned int y = snake_tail.y;
 
   switch ( snake_tail.direction ) {
-    case DIR_UP:
-      y++;
-      break;
-
-    case DIR_DOWN:
-      y--;
-      break;
-
-    case DIR_LEFT:
-      x++;
-      break;
-
-    case DIR_RIGHT:
-      x--;
-      break;
+    case DIR_UP:    y++; break;
+    case DIR_DOWN:  y--; break;
+    case DIR_LEFT:  x++; break;
+    case DIR_RIGHT: x--; break;
   }
 
   draw_cell(x, y, COLOR_BG);
@@ -330,6 +299,13 @@ void draw_pause() {
   rc2014_print("PAUSED        ");
 }
 
+void draw_help() {
+  rc2014_ansi_color(COLOR_BG);
+  rc2014_ansi_color(COLOR_TEXT);
+  rc2014_ansi_move_cursor(GRID_HEIGHT + 1, 38);
+  rc2014_print("W: Up  S: Down  A: Left  D: Right  P: Pause");
+}
+
 void draw_end() {
   unsigned char str[20];
 
@@ -344,11 +320,9 @@ void draw_end() {
 }
 
 void sleep() {
-  unsigned int i;
+  unsigned int i = SLEEP_CYCLES - score;
 
-  i = SLEEP_DURATION - score;
-
-  while ( i > 0 ) i--;
+  while ( i-- );
 }
 
 void start() {
@@ -365,12 +339,7 @@ void start() {
   new_apple();
 
   draw_grid();
-
-  rc2014_ansi_color(COLOR_BG);
-  rc2014_ansi_color(COLOR_TEXT);
-  rc2014_ansi_move_cursor(GRID_HEIGHT + 1, 38);
-  rc2014_print("W: Up  S: Down  A: Left  D: Right  P: Pause");
-
+  draw_help();
   draw_score();
 }
 
@@ -435,18 +404,13 @@ void draw() {
 
 // Main game loop
 void main() {
-  unsigned char key;
-
   rc2014_ansi_hide_cursor();
   rc2014_ansi_color(COLOR_BG);
   rc2014_ansi_cls();
 
-  state = STATE_START;
-
   while ( 1 ) {
     if ( rc2014_uart_rx_ready() ) {
-      key = rc2014_uart_rx();
-      keypressed(key);
+      keypressed(rc2014_uart_rx());
     }
     update();
     draw();
