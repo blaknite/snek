@@ -301,8 +301,8 @@ void start() {
   new_apple();
 
   draw_grid();
-  draw_help();
   draw_score();
+  draw_help();
 }
 
 void input() {
