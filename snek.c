@@ -295,6 +295,7 @@ void draw_end(void) {
 void start(void) {
   score = 0;
   cycles_per_tick = CYCLES_PER_TICK;
+  direction = DIR_UP;
 
   state = STATE_RUN;
 
