@@ -53,16 +53,16 @@ unsigned int state = STATE_START;
 unsigned int score = 0;
 unsigned int sleep_cycles = SLEEP_CYCLES;
 
-unsigned int grid_index(unsigned int x, unsigned int y) {
+unsigned int cell_index(unsigned int x, unsigned int y) {
   return y * GRID_WIDTH + x;
 }
 
 unsigned char get_cell(unsigned int x, unsigned int y) {
-  return grid[grid_index(x, y)];
+  return grid[cell_index(x, y)];
 }
 
 void set_cell(unsigned int x, unsigned int y, unsigned char val) {
-  grid[grid_index(x, y)] = val;
+  grid[cell_index(x, y)] = val;
 }
 
 void draw_cell(unsigned int x, unsigned int y, unsigned int col) {
