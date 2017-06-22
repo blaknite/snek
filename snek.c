@@ -238,11 +238,7 @@ void draw_grid() {
   }
 }
 
-void draw_snake_head() {
-  draw_cell(snake_head.x, snake_head.y, COLOR_SNAKE);
-}
-
-void draw_snake_tail() {
+void draw_snake() {
   unsigned int x = snake_tail.x;
   unsigned int y = snake_tail.y;
 
@@ -253,6 +249,7 @@ void draw_snake_tail() {
     case DIR_RIGHT: x--; break;
   }
 
+  draw_cell(snake_head.x, snake_head.y, COLOR_SNAKE);
   draw_cell(x, y, COLOR_BG);
 }
 
@@ -365,8 +362,7 @@ void draw() {
       break;
 
     case STATE_RUN:
-      draw_snake_head();
-      draw_snake_tail();
+      draw_snake();
       draw_apple();
       draw_score();
       break;
