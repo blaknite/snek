@@ -5,6 +5,7 @@
 
 #pragma output REGISTER_SP = -1
 #pragma output CLIB_MALLOC_HEAP_SIZE = 0
+#pragma output CLIB_STDIO_HEAP_SIZE = 0
 #pragma output CLIB_OPT_PRINTF = 0x1;
 
 #define SLEEP_CYCLES 2500
