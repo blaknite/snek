@@ -144,9 +144,7 @@ void end() {
   rc2014_ansi_cls();
 }
 
-void update_snake_head() {
-  unsigned char val;
-
+void update_snake() {
   set_cell(snake_head.x, snake_head.y, snake_head.direction);
 
   switch ( snake_head.direction ) {
@@ -156,17 +154,11 @@ void update_snake_head() {
     case DIR_RIGHT: snake_head.x++; break;
   }
 
-  val = get_cell(snake_head.x, snake_head.y);
-
-  if ( val != GRID_APPLE && val != GRID_EMPTY ) end();
-}
-
-void update_snake_tail() {
   if ( apple.x == snake_head.x && apple.y == snake_head.y ) return;
 
   snake_tail.direction = get_cell(snake_tail.x, snake_tail.y);
 
-  set_cell(snake_tail.x, snake_tail.y, GRID_EMPTY);
+  set_cell(snake_tail.x, snake_tail.y, CELL_EMPTY);
 
   switch ( snake_tail.direction ) {
     case DIR_UP:    snake_tail.y--; break;
@@ -348,8 +340,7 @@ void update() {
       break;
 
     case STATE_RUN:
-      update_snake_head();
-      update_snake_tail();
+      update_snake();
       update_score();
       break;
   }
