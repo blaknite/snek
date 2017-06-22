@@ -74,15 +74,13 @@ void draw_cell(unsigned int x, unsigned int y, unsigned int col) {
 void init_grid() {
   unsigned int x;
   unsigned int y;
-  unsigned int max_x = GRID_WIDTH - 1;
-  unsigned int max_y = GRID_HEIGHT - 1;
 
   for ( y = 0; y < GRID_HEIGHT; ++y ) {
     for ( x = 0; x < GRID_WIDTH; ++x ) {
-      if ( y == 0 || y == max_y || x == 0 || x == max_x ) {
-        set_cell(x, y, GRID_WALL);
+      if ( y == 0 || y == GRID_HEIGHT - 1 || x == 0 || x == GRID_WIDTH - 1 ) {
+        set_cell(x, y, CELL_WALL);
       } else {
-        set_cell(x, y, GRID_EMPTY);
+        set_cell(x, y, CELL_EMPTY);
       }
     }
   }
