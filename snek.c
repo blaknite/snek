@@ -150,21 +150,10 @@ void update_snake_head() {
   set_cell(snake_head.x, snake_head.y, snake_head.direction);
 
   switch ( snake_head.direction ) {
-    case DIR_UP:
-      snake_head.y--;
-      break;
-
-    case DIR_DOWN:
-      snake_head.y++;
-      break;
-
-    case DIR_LEFT:
-      snake_head.x--;
-      break;
-
-    case DIR_RIGHT:
-      snake_head.x++;
-      break;
+    case DIR_UP:    snake_head.y--; break;
+    case DIR_DOWN:  snake_head.y++; break;
+    case DIR_LEFT:  snake_head.x--; break;
+    case DIR_RIGHT: snake_head.x++; break;
   }
 
   val = get_cell(snake_head.x, snake_head.y);
@@ -180,21 +169,10 @@ void update_snake_tail() {
   set_cell(snake_tail.x, snake_tail.y, GRID_EMPTY);
 
   switch ( snake_tail.direction ) {
-    case DIR_UP:
-      snake_tail.y--;
-      break;
-
-    case DIR_DOWN:
-      snake_tail.y++;
-      break;
-
-    case DIR_LEFT:
-      snake_tail.x--;
-      break;
-
-    case DIR_RIGHT:
-      snake_tail.x++;
-      break;
+    case DIR_UP:    snake_tail.y--; break;
+    case DIR_DOWN:  snake_tail.y++; break;
+    case DIR_LEFT:  snake_tail.x--; break;
+    case DIR_RIGHT: snake_tail.x++; break;
   }
 }
 
