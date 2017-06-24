@@ -108,7 +108,7 @@ void init_apple(void) {
   apple.y = 0;
 }
 
-void set_direction(char key) {
+void __FASTCALL__ set_direction(char key) {
   if ( direction != snake_head.direction ) return;
 
   switch ( key ) {
