@@ -174,7 +174,7 @@ void end(void) {
   rc2014_ansi_cls();
 }
 
-void update_score() {
+void update_score(void) {
   unsigned char val = get_cell(snake_head.x, snake_head.y);
 
   if ( val != CELL_APPLE && val != CELL_EMPTY ) end();
