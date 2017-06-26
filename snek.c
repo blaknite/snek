@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "rc2014.h"
+#include "rc2014_uart.h"
+#include "rc2014_ansi.h"
 
 #pragma output REGISTER_SP = -1
 #pragma output CLIB_MALLOC_HEAP_SIZE = 0
@@ -315,9 +316,9 @@ void start(void) {
 void input(void) {
   unsigned char key;
 
-  if ( !rc2014_uart_rx_ready() ) return;
+  if ( !rc2014_rx_ready() ) return;
 
-  key = rc2014_uart_rx();
+  key = rc2014_rx();
 
   switch ( state ) {
     case STATE_START:
