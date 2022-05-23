@@ -1,15 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "rc2014_uart.h"
-#include "rc2014_ansi.h"
-
-#pragma output REGISTER_SP = -1
 #pragma output CLIB_MALLOC_HEAP_SIZE = 0
 #pragma output CLIB_STDIO_HEAP_SIZE = 0
 #pragma output CLIB_OPT_PRINTF = 0x1;
 
-#define CYCLES_PER_TICK 2500
+#define CYCLES_PER_TICK 750
 #define SCORE_PER_APPLE 10
 #define CYCLES_PER_APPLE 2
 #define COLOR_BG 40
@@ -28,10 +24,34 @@
 #define DIR_LEFT 'L'
 #define DIR_RIGHT 'R'
 #define START_KEY ' '
+#define QUIT_KEY 'x'
 #define STATE_START 0
 #define STATE_RUN 1
 #define STATE_PAUSE 2
 #define STATE_END 3
+
+extern unsigned char getchar_noblock(void);
+extern void quit(void);
+
+void ansi_cls(void) {
+  fputs("\x1B[2J", stdout);
+}
+
+void ansi_hide_cursor(void) {
+  fputs("\x1B[?25l", stdout);
+}
+
+void ansi_show_cursor(void) {
+  fputs("\x1B[?25h", stdout);
+}
+
+void ansi_move_cursor(unsigned int row, unsigned int col) {
+  printf("\x1B[%d;%dH", row, col);
+}
+
+void ansi_color(unsigned int col) {
+  printf("\x1B[%dm", col);
+}
 
 typedef struct {
   unsigned int x;
@@ -73,9 +93,9 @@ void set_cell(unsigned int x, unsigned int y, unsigned char val) {
 }
 
 void draw_cell(unsigned int x, unsigned int y, unsigned int col) {
-  rc2014_ansi_move_cursor(y + 1, 2 * x + 1);
-  rc2014_ansi_color(col);
-  rc2014_print("  ");
+  ansi_move_cursor(y + 1, 2 * x + 1);
+  ansi_color(col);
+  fputs("  ", stdout);
 }
 
 void init_grid(void) {
@@ -109,7 +129,7 @@ void init_apple(void) {
   apple.y = 0;
 }
 
-void __FASTCALL__ set_direction(char key) {
+void set_direction(char key) {
   if ( direction != snake_head.direction ) return;
 
   switch ( key ) {
@@ -172,7 +192,7 @@ void update_snake(void) {
 
 void end(void) {
   state = STATE_END;
-  rc2014_ansi_cls();
+  ansi_cls();
 }
 
 void update_score(void) {
@@ -189,29 +209,29 @@ void update_score(void) {
 }
 
 void draw_start(void) {
-  rc2014_ansi_color(31);
-  rc2014_ansi_move_cursor(GRID_HEIGHT / 2 - 6, GRID_WIDTH - 12);
-  rc2014_print("####  #   #  ####  #  #");
-  rc2014_ansi_color(32);
-  rc2014_ansi_move_cursor(GRID_HEIGHT / 2 - 5, GRID_WIDTH - 12);
-  rc2014_print("#     ##  #  #     # #");
-  rc2014_ansi_color(33);
-  rc2014_ansi_move_cursor(GRID_HEIGHT / 2 - 4, GRID_WIDTH - 12);
-  rc2014_print("####  # # #  ###   ##");
-  rc2014_ansi_color(35);
-  rc2014_ansi_move_cursor(GRID_HEIGHT / 2 - 3, GRID_WIDTH - 12);
-  rc2014_print("   #  #  ##  #     # #");
-  rc2014_ansi_color(36);
-  rc2014_ansi_move_cursor(GRID_HEIGHT / 2 - 2, GRID_WIDTH - 12);
-  rc2014_print("####  #   #  ####  #  #");
+  ansi_color(31);
+  ansi_move_cursor(GRID_HEIGHT / 2 - 6, GRID_WIDTH - 12);
+  puts("####  #   #  ####  #  #");
+  ansi_color(32);
+  ansi_move_cursor(GRID_HEIGHT / 2 - 5, GRID_WIDTH - 12);
+  puts("#     ##  #  #     # #");
+  ansi_color(33);
+  ansi_move_cursor(GRID_HEIGHT / 2 - 4, GRID_WIDTH - 12);
+  puts("####  # # #  ###   ##");
+  ansi_color(35);
+  ansi_move_cursor(GRID_HEIGHT / 2 - 3, GRID_WIDTH - 12);
+  puts("   #  #  ##  #     # #");
+  ansi_color(36);
+  ansi_move_cursor(GRID_HEIGHT / 2 - 2, GRID_WIDTH - 12);
+  puts("####  #   #  ####  #  #");
 
-  rc2014_ansi_color(COLOR_TEXT);
+  ansi_color(COLOR_TEXT);
 
-  rc2014_ansi_move_cursor(GRID_HEIGHT / 2, GRID_WIDTH - 13);
-  rc2014_print("Created by Grant Colegate");
+  ansi_move_cursor(GRID_HEIGHT / 2, GRID_WIDTH - 13);
+  puts("Created by Grant Colegate");
 
-  rc2014_ansi_move_cursor(GRID_HEIGHT / 2 + 2, GRID_WIDTH - 14);
-  rc2014_print("--| PRESS SPACE TO START |--");
+  ansi_move_cursor(GRID_HEIGHT / 2 + 2, GRID_WIDTH - 14);
+  puts("--| PRESS SPACE TO START |--");
 }
 
 void draw_grid(void) {
@@ -257,40 +277,34 @@ void draw_apple(void) {
 }
 
 void draw_score(void) {
-  unsigned char str[14];
-
-  sprintf(str, "SCORE: %d", score);
-  rc2014_ansi_move_cursor(GRID_HEIGHT + 1, 1);
-  rc2014_ansi_color(COLOR_BG);
-  rc2014_ansi_color(COLOR_TEXT);
-  rc2014_print(str);
+  ansi_move_cursor(GRID_HEIGHT + 1, 1);
+  ansi_color(COLOR_BG);
+  ansi_color(COLOR_TEXT);
+  printf("SCORE: %d", score);
 }
 
 void draw_pause(void) {
-  rc2014_ansi_color(COLOR_BG);
-  rc2014_ansi_color(COLOR_TEXT);
-  rc2014_ansi_move_cursor(GRID_HEIGHT + 1, 1);
-  rc2014_print("PAUSED        ");
+  ansi_color(COLOR_BG);
+  ansi_color(COLOR_TEXT);
+  ansi_move_cursor(GRID_HEIGHT + 1, 1);
+  fputs("PAUSED        ", stdout);
 }
 
 void draw_help(void) {
-  rc2014_ansi_color(COLOR_BG);
-  rc2014_ansi_color(COLOR_TEXT);
-  rc2014_ansi_move_cursor(GRID_HEIGHT + 1, 34);
-  rc2014_print("W: Up  S: Down  A: Left  D: Right  Space: Pause");
+  ansi_color(COLOR_BG);
+  ansi_color(COLOR_TEXT);
+  ansi_move_cursor(GRID_HEIGHT + 1, 25);
+  fputs("W: Up  S: Down  A: Left  D: Right  Space: Pause  X: Quit", stdout);
 }
 
 void draw_end(void) {
-  unsigned char str[12];
-
-  rc2014_ansi_color(COLOR_END);
-  rc2014_ansi_move_cursor(GRID_HEIGHT / 2 - 2, GRID_WIDTH - 5);
-  rc2014_print("GAME OVER!");
-  rc2014_ansi_move_cursor(GRID_HEIGHT / 2, GRID_WIDTH - 5);
-  sprintf(str, "SCORE: %d", score);
-  rc2014_print(str);
-  rc2014_ansi_move_cursor(GRID_HEIGHT / 2 + 2, GRID_WIDTH - 14);
-  rc2014_print("--| PRESS SPACE TO START |--");
+  ansi_color(COLOR_END);
+  ansi_move_cursor(GRID_HEIGHT / 2 - 2, GRID_WIDTH - 5);
+  puts("GAME OVER!");
+  ansi_move_cursor(GRID_HEIGHT / 2, GRID_WIDTH - 5);
+  printf("SCORE: %d", score);
+  ansi_move_cursor(GRID_HEIGHT / 2 + 2, GRID_WIDTH - 14);
+  puts("--| PRESS SPACE TO START |--");
 }
 
 void start(void) {
@@ -300,7 +314,7 @@ void start(void) {
 
   state = STATE_RUN;
 
-  rc2014_ansi_cls();
+  ansi_cls();
 
   init_grid();
   init_snake();
@@ -316,9 +330,11 @@ void start(void) {
 void input(void) {
   unsigned char key;
 
-  if ( !rc2014_rx_ready() ) return;
+  key = getchar_noblock();
 
-  key = rc2014_rx();
+  if ( !key ) return;
+
+  if ( key == QUIT_KEY ) quit();
 
   switch ( state ) {
     case STATE_START:
@@ -374,9 +390,9 @@ void draw(void) {
 void main(void) {
   static unsigned int i;
 
-  rc2014_ansi_hide_cursor();
-  rc2014_ansi_color(COLOR_BG);
-  rc2014_ansi_cls();
+  ansi_hide_cursor();
+  ansi_color(COLOR_BG);
+  ansi_cls();
 
   while ( 1 ) {
     i = cycles_per_tick;
