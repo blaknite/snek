@@ -53,6 +53,10 @@ void ansi_color(unsigned int col) {
   printf("\x1B[%dm", col);
 }
 
+void ansi_reset(void) {
+  fputs("\x1B[0m", stdout);
+}
+
 typedef struct {
   unsigned int x;
   unsigned int y;
@@ -334,7 +338,11 @@ void input(void) {
 
   if ( !key ) return;
 
-  if ( key == QUIT_KEY ) quit();
+  if ( key == QUIT_KEY ) {
+    ansi_reset();
+    ansi_show_cursor();
+    quit();
+  }
 
   switch ( state ) {
     case STATE_START:
