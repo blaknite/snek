@@ -340,6 +340,8 @@ void input(void) {
 
   if ( key == QUIT_KEY ) {
     ansi_reset();
+    ansi_cls();
+    ansi_move_cursor(0, 0);
     ansi_show_cursor();
     quit();
   }
